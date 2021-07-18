@@ -1,72 +1,29 @@
 import logo from './logo.svg';
 import './App.css';
-import { useEffect, useState } from 'react';
+import {useInput} from './utils/inputHooks.js'
+
+
 
 function App() {
-  const [email, setEmail] = useState('')
-  const [emailDirty, setEmailDirty] = useState(false) 
-  const [emailError, setEmailError] = useState('Email cannot be empty')
-
-  const [password, setPassword] = useState('')
-  const [passwordDirty, setPasswordDirty] = useState(false)
-  const [passwordError, setPasswordError] = useState('Password cannot be empty')
-
-  const [formValid, setFormValid] = useState(false)
-
-  useEffect(() => {
-    if(emailError || passwordError){
-      setFormValid(false)
-    } else {
-      setFormValid(true)
-    }
-  }, [emailError, passwordError])
-
-  const emailHandler = (e) => {
-    setEmail(e.target.value)
-    const re = /.+@.+\..+/i
-    if (!re.test(String(e.target.value).toLowerCase())){
-      setEmailError('Uncorrect email adress')
-    } else {
-      setEmailError('')
-    }
-  }
   
-  const passwordHandler = (e) => {
-    setPassword(e.target.value)
-    if(e.target.value.length < 3 || e.target.value.length > 10){
-      setPasswordError('Password must contain 3-10 symbols')
-    } else {
-      setPasswordError('')
-    }
-  }
-  
-  
-  const blurHandler = (e) => {
-    switch (e.target.name) {
-      case 'email':
-        setEmailDirty(true)
-        break
-      case 'password':
-        setPasswordDirty(true)
-        break
-    }
-  }
-
+  const email = useInput('', { isEmpty:true, isEmail:true })
+  const password = useInput('', { isEmpty:true, minLength:3, maxLength:10 })
 
   return (
     <div className="App">
         <form>
           <h1>Registration</h1>
           <div className="input">
-            <input name="email" value={email} onChange={(e) => emailHandler(e)} onBlur={(e)=>blurHandler(e)} type="text" placeholder="Enter your email..."/>
-            {emailDirty&&emailError&&<div className="error">{emailError}</div>}
+            <input name="email" value={email.value} onChange={email.onChange} onBlur={email.onBlur} type="text" placeholder="Enter your email..."/>
+            {email.isDirty&&email.inputError&&<div className="error">{email.inputError}</div>}
+            
           </div>
           <div className="input">
-            <input name="password" value={password} onChange={(e) => passwordHandler(e)} onBlur={(e)=>blurHandler(e)} type="password" placeholder="Enter password..."/>
-            {passwordDirty&&passwordError&&<div className="error">{passwordError}</div>}
+            <input name="password" value={password.value} onChange={password.onChange} onBlur={password.onBlur} type="password" placeholder="Enter password..."/>
+            {password.isDirty&&password.inputError&&<div className="error">{password.inputError}</div>}
           </div>
 
-          <button disabled={!formValid} type="submit">Submit</button>
+          <button type="submit" disabled={!email.inputValid || !password.inputValid} onClick={()=>{alert(`email: ${email.value} \npassword: ${password.value}`)}}>Submit</button>
         </form>
     </div>
   );
